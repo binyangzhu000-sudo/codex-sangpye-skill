@@ -6,6 +6,7 @@ import os
 import time
 from pathlib import Path
 from typing import Callable, Literal
+from sangpye_skill.atlas_client import AtlasImageClient
 from sangpye_skill.codex_client import CodexClient
 
 logger = logging.getLogger(__name__)
@@ -52,9 +53,12 @@ class ImageGenerator:
         self,
         client: CodexClient,
         quality: Literal["standard", "high"] = "high",
+        image_provider: Literal["codex", "atlas"] = "codex",
     ):
         self.client = client
         self.quality = quality
+        self.image_provider = image_provider
+        self.atlas = AtlasImageClient() if image_provider == "atlas" else None
 
     def _generate_single_bundle(
         self,
@@ -64,6 +68,21 @@ class ImageGenerator:
         event_callback: Callable[[dict], None] | None = None,
     ) -> bytes:
         bundle_id = bundle["bundle_id"]
+        size = (bundle["size"][0], bundle["size"][1])
+        if self.atlas is not None:
+            if cancel_check and cancel_check():
+                raise JobCancelled()
+            _emit(event_callback, {
+                "type": "bundle_start", "bundle_id": bundle_id,
+                "attempt": 1, "max_attempts": 1,
+            })
+            return self.atlas.generate_with_reference(
+                reference_image=master_image,
+                prompt=bundle["prompt"],
+                size=size,
+                quality=self.quality,
+            )
+
         last_error: Exception | None = None
         for attempt in range(1, MAX_RETRIES + 1):
             if cancel_check and cancel_check():
@@ -73,7 +92,6 @@ class ImageGenerator:
                 "attempt": attempt, "max_attempts": MAX_RETRIES,
             })
             try:
-                size = (bundle["size"][0], bundle["size"][1])
                 # Phase 0 spike: ChatGPT OAuth rejects direct image-model calls.
                 # The image_generation tool is invoked via a chat orchestrator; codex_client
                 # handles the tool/tool_choice/store/stream plumbing.

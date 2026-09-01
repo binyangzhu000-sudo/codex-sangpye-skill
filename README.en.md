@@ -178,7 +178,24 @@ sangpye \
 | `--category` | | `general` | `electronics` \| `fashion` \| `food` \| `beauty` \| `home` \| `general` |
 | `--output DIR` | | `./sangpye-output` | Parent output directory (a `{job_id}/` subdir is created inside). |
 | `--quality` | | `high` | `standard` \| `high`. Drop to `standard` if you hit rate limits. |
+| `--image-provider` | | `codex` | `codex` (default) or `atlas`. Atlas requires `ATLASCLOUD_API_KEY`; product analysis still uses Codex OAuth. |
 | `--job-id ID` | | random 8-char hex | Override the auto-generated id (becomes the subdir name). |
+
+### Optional Atlas Cloud image provider
+
+The Codex OAuth path remains the default. To route only the five image bundles
+through Atlas Cloud while keeping Codex OAuth for product analysis:
+
+```bash
+export ATLASCLOUD_API_KEY='your_key_here'
+sangpye --image ./your_product.jpg --prompt "..." \
+  --output ./out --image-provider atlas
+```
+
+The default Atlas model is `openai/gpt-image-2/edit`. Set
+`ATLASCLOUD_IMAGE_MODEL` to choose another compatible edit model, or
+`ATLASCLOUD_BASE_URL` to override the API base. Billable generation POSTs are
+never retried automatically; prediction GETs use bounded retries.
 
 ### Output contract
 

@@ -39,10 +39,13 @@ BUNDLE_SECTION_MAP: dict[str, list[tuple[str, int, int]]] = {
 
 
 class PipelineService:
-    def __init__(self, quality: Literal["standard", "high"] = "high"):
+    def __init__(self, quality: Literal["standard", "high"] = "high",
+                 image_provider: Literal["codex", "atlas"] = "codex"):
         self.client = CodexClient()
         self.analysis = AnalysisService(client=self.client)
-        self.generator = ImageGenerator(client=self.client, quality=quality)
+        self.generator = ImageGenerator(
+            client=self.client, quality=quality, image_provider=image_provider
+        )
         self.slicer = BundleSlicer()
         self.composer = ComposerService()
 

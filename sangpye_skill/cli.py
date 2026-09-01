@@ -10,6 +10,7 @@ import traceback
 from pathlib import Path
 
 from sangpye_skill import __version__
+from sangpye_skill.atlas_client import AtlasCallError
 from sangpye_skill.codex_client import CodexAuthError, CodexCallError
 from sangpye_skill.constants import MAX_UPLOAD_IMAGES
 from sangpye_skill.pipeline import PipelineService
@@ -44,6 +45,10 @@ def _build_parser() -> argparse.ArgumentParser:
         help="Parent output directory (default: ./sangpye-output).",
     )
     p.add_argument("--quality", choices=["standard", "high"], default="high")
+    p.add_argument(
+        "--image-provider", choices=["codex", "atlas"], default="codex",
+        help="Image generation provider (default: codex OAuth).",
+    )
     p.add_argument("--job-id", default=None, help="Override the auto-generated 8-char job id.")
     p.add_argument(
         "--layout", choices=["flat", "cards"], default="flat",
@@ -98,10 +103,15 @@ def main() -> int:
 
     _stderr("Codex OAuth: loading ~/.codex/auth.json...")
     try:
-        pipeline = PipelineService(quality=args.quality)
+        pipeline = PipelineService(
+            quality=args.quality, image_provider=args.image_provider
+        )
     except CodexAuthError as e:
         _stderr(f"error: {e}")
         return EXIT_AUTH
+    except AtlasCallError as e:
+        _stderr(f"error (atlas): {e}")
+        return EXIT_API
 
     _stderr(f"      OK ({len(images)} image(s), job_id={job_id})")
 

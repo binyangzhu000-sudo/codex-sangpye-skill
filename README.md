@@ -175,9 +175,26 @@ sangpye \
 | `--category` | | `general` | `electronics` \| `fashion` \| `food` \| `beauty` \| `home` \| `general` |
 | `--output DIR` | | `./sangpye-output` | 출력 디렉토리 (하위에 `{job_id}/` 생성). |
 | `--quality` | | `high` | `standard` \| `high`. 저티어 구독에서 rate limit 만나면 `standard`로. |
+| `--image-provider` | | `codex` | `codex`(기본값) 또는 `atlas`. Atlas는 `ATLASCLOUD_API_KEY`가 필요하며, 제품 분석은 계속 Codex OAuth를 사용합니다. |
 | `--job-id ID` | | 랜덤 8자 hex | 수동 지정 시 디렉토리명이 됨. |
 | `--layout` | | `flat` | `flat` = 섹션 풀블리드(기본, 제품 상폐) \| `cards` = 통일 다크 배경 위 둥근 카드 + 여백(강의/콘텐츠용). |
 | `--card-side / --card-gap / --card-pad / --card-radius / --card-bg` | | `30 / 40 / 40 / 24 / #0B1020` | `--layout cards`일 때만 적용되는 좌우·세로 간격·상하 여백·모서리·배경 튜닝. |
+
+### 선택 사항: Atlas Cloud 이미지 provider
+
+Codex OAuth 경로가 기본값으로 유지됩니다. 제품 분석에는 Codex OAuth를
+계속 사용하고, 5개 이미지 번들만 Atlas Cloud로 생성하려면:
+
+```bash
+export ATLASCLOUD_API_KEY='your_key_here'
+sangpye --image ./your_product.jpg --prompt "..." \
+  --output ./out --image-provider atlas
+```
+
+기본 Atlas 모델은 `openai/gpt-image-2/edit`입니다.
+`ATLASCLOUD_IMAGE_MODEL` 또는 `ATLASCLOUD_BASE_URL`로 각각 모델과 API
+주소를 변경할 수 있습니다. 과금 가능한 생성 POST는 자동 재시도하지
+않고, 예측 상태를 읽는 GET만 제한적으로 재시도합니다.
 
 ### 출력
 

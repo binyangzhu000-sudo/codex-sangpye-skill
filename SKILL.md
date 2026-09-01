@@ -1,14 +1,14 @@
 ---
 name: codex-sangpye
 description: Generate a 13-section Korean e-commerce 상세페이지(상폐) image set (1080x12720 combined image + 13 individual section PNGs) from 1-14 product photos plus a Korean brief, using the active Codex OAuth session (ChatGPT subscription — no separate OpenAI API key required).
-version: 0.4.0
+version: 0.5.0
 author: genie
 license: MIT
 metadata:
   hermes:
     tags: [codex, image-generation, oauth, ecommerce, korean, sangpye, detail-page]
     related_skills: [codex-image-generation]
-version_note: "0.4.0 — adds --layout cards (rounded-card composition with margins)"
+version_note: "0.5.0 — adds optional Atlas Cloud image generation"
 ---
 
 ## When to use
@@ -45,6 +45,7 @@ If any precondition fails, tell the user how to fix and stop.
 | `--category` | no | `general` | One of: electronics, fashion, food, beauty, home, general. |
 | `--output DIR` | no | `./sangpye-output` | Parent output directory. |
 | `--quality` | no | `high` | One of: standard, high. |
+| `--image-provider` | no | `codex` | `codex` (default) or `atlas`. Atlas requires `ATLASCLOUD_API_KEY`; analysis still uses Codex OAuth. |
 | `--job-id ID` | no | random 8-char hex | Override the job id. |
 | `--layout` | no | `flat` | `flat` = sections stacked edge-to-edge (full-bleed, default — product 상폐). `cards` = rounded cards on a unified dark background with margins (lecture / content). |
 | `--card-side` | no | `30` | [cards] left/right margin px. |
@@ -67,6 +68,20 @@ sangpye \
   --prompt "무선 이어폰, ANC 탑재, 30시간 배터리, IPX5 방수" \
   --output ./out
 ```
+
+Optional Atlas Cloud image generation preserves the Codex OAuth default:
+
+```bash
+export ATLASCLOUD_API_KEY='your_key_here'
+sangpye --image ./photos/earbuds_01.jpg --prompt "..." \
+  --output ./out --image-provider atlas
+```
+
+Atlas uses `openai/gpt-image-2/edit` for the five image bundles. The product
+analysis step still uses the active Codex OAuth session. Generation POSTs are
+submitted once and never retried automatically; only prediction GETs use
+bounded retries. Override the model with `ATLASCLOUD_IMAGE_MODEL` or the API
+base with `ATLASCLOUD_BASE_URL`.
 
 ## Example with explicit options
 
