@@ -224,6 +224,8 @@ sangpye \
   --job-id <이전과 동일>         # 실패 시 stderr에 표시됨
 ```
 
+원래 실행에서 `--image-provider atlas`를 사용했다면 재개할 때도 같은 플래그를 지정하세요. 그렇지 않으면 빠진 번들이 기본 Codex 경로로 생성됩니다.
+
 - `output_dir/{job_id}/analysis.json`이 있으면 **gpt-5.5 분석 단계(Step 1) 자동 스킵** — 쿼터 절약 + ~30초 단축
 - `bundles/{bundle_id}.png`가 이미 있는 번들은 **재생성 안 함** — 이미 성공한 4개 번들이 있으면 실패한 1개만 재시도 (~2~3분)
 - `sections/` + `combined.png`는 항상 다시 만듦 (비용 무시 가능한 수준)

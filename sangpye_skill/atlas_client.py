@@ -103,7 +103,7 @@ class AtlasImageClient:
                 detail = error.read().decode("utf-8", errors="replace")[:500]
                 raise AtlasCallError(f"Atlas upload HTTP {error.code}: {detail}") from error
             data = _unwrap(payload)
-            url = data.get("download_url")
+            url = data.get("download_url") or data.get("url")
             if not isinstance(url, str) or not url.startswith("https://"):
                 raise AtlasCallError("Atlas upload returned no HTTPS download URL")
             self._upload_cache[image_path] = url

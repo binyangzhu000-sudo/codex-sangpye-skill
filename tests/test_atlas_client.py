@@ -65,6 +65,31 @@ def test_uploads_once_submits_once_then_polls_and_downloads(tmp_path, monkeypatc
     assert generation_payloads[0]["size"] == "1088x1600"
 
 
+def test_upload_accepts_url_field_when_download_url_is_absent(tmp_path, monkeypatch):
+    reference = tmp_path / "product.png"
+    reference.write_bytes(b"png-reference")
+    monkeypatch.setattr(
+        urllib.request,
+        "urlopen",
+        lambda request, timeout=None: json_response({"data": {"url": "https://cdn.example/ref.png"}}),
+    )
+
+    assert AtlasImageClient(api_key="test-key").upload_reference(reference) == "https://cdn.example/ref.png"
+
+
+def test_upload_without_https_url_fails(tmp_path, monkeypatch):
+    reference = tmp_path / "product.png"
+    reference.write_bytes(b"png-reference")
+    monkeypatch.setattr(
+        urllib.request,
+        "urlopen",
+        lambda request, timeout=None: json_response({"data": {"url": "http://cdn.example/ref.png"}}),
+    )
+
+    with pytest.raises(AtlasCallError, match="HTTPS"):
+        AtlasImageClient(api_key="test-key").upload_reference(reference)
+
+
 def test_generation_post_failure_is_not_retried(tmp_path, monkeypatch):
     reference = tmp_path / "product.png"
     reference.write_bytes(b"png-reference")

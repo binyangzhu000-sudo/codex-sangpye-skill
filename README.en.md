@@ -225,6 +225,8 @@ sangpye \
   --job-id <same as previous run>    # stderr shows the id on failure
 ```
 
+If the original run used `--image-provider atlas`, pass the same flag when resuming. Otherwise the missing bundles are generated through the default Codex path.
+
 - `output_dir/{job_id}/analysis.json` exists → **Step 1 (gpt-5.5 analysis) is auto-skipped** — saves quota + ~30s
 - `bundles/{bundle_id}.png` already present → **that bundle is NOT re-generated**. With 4 of 5 already complete, only the failed one retries (~2-3 min)
 - `sections/` + `combined.png` are always rebuilt (their cost is negligible)

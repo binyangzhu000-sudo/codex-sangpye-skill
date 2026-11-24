@@ -121,7 +121,7 @@ When `output_dir/{job_id}/` already contains `analysis.json`:
 - Individual bundles with a non-empty `bundles/{id}.png` on disk are reused.
 - Only missing bundles are generated; then slice + compose run over the full set.
 
-This makes a failed run trivial to recover from without re-burning quota. Suggest this to the user whenever they see `exit=5` or a bundle failure.
+This makes a failed run trivial to recover from without re-burning quota. Suggest this to the user whenever they see `exit=5` or a bundle failure. If the original run used `--image-provider atlas`, repeat that flag when resuming, otherwise the missing bundles are generated through the default Codex path.
 
 ## Troubleshooting
 
